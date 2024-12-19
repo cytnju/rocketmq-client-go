@@ -213,6 +213,11 @@ func (pc *defaultPullConsumer) nextPullOffset(mq *primitive.MessageQueue, origin
 		return originOffset
 	} else {
 		nextOffset := value.(int64)
+		rlog.Info("pull consumer assign new offset", map[string]interface{}{
+			"group":  pc.GroupName,
+			"mq":     mq,
+			"offset": nextOffset,
+		})
 		_ = pc.updateOffset(mq, nextOffset)
 		return nextOffset
 	}
@@ -880,6 +885,8 @@ func (pc *defaultPullConsumer) pullMessage(request *PullRequest) {
 		if brokerResult.Slave {
 			pullRequest.SysFlag = clearCommitOffsetFlag(pullRequest.SysFlag)
 		}
+
+		rlog.Info(fmt.Sprintf("defaultPullConsumer pull message from broker: %s, request: %v", brokerResult.BrokerAddr, pullRequest), nil)
 
 		result, err := pc.client.PullMessage(context.Background(), brokerResult.BrokerAddr, pullRequest)
 		if err != nil {
