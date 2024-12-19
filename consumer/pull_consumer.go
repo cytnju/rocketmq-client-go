@@ -208,7 +208,7 @@ func (pc *defaultPullConsumer) nextPullOffset(mq *primitive.MessageQueue, origin
 	if pc.SubType != Assign {
 		return originOffset
 	}
-	value, exist := pc.mq2seekOffset.LoadAndDelete(mq)
+	value, exist := pc.mq2seekOffset.LoadAndDelete(mq.String())
 	if !exist {
 		return originOffset
 	} else {
@@ -716,7 +716,7 @@ func (pc *defaultPullConsumer) ResetOffset(topic string, table map[primitive.Mes
 }
 
 func (pc *defaultPullConsumer) SeekOffset(mq *primitive.MessageQueue, offset int64) {
-	pc.mq2seekOffset.Store(mq, offset)
+	pc.mq2seekOffset.Store(mq.String(), offset)
 	rlog.Info("pull consumer seek offset", map[string]interface{}{
 		"mq":     mq,
 		"offset": offset,
